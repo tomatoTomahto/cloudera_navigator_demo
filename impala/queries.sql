@@ -6,7 +6,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS ext_customers (
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY ','
 STORED AS TEXTFILE
-location '/user/admin/raw_data/customers';
+location '/user/sgupta/customers';
 
 CREATE EXTERNAL TABLE IF NOT EXISTS ext_products (
         prod_id INT, 
@@ -15,7 +15,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS ext_products (
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY ','
 STORED AS TEXTFILE
-location '/user/admin/raw_data/products';
+location '/user/sgupta/products';
 
 CREATE EXTERNAL TABLE IF NOT EXISTS ext_transactions (
         cust_id INT, 
@@ -24,7 +24,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS ext_transactions (
 ROW FORMAT DELIMITED
 FIELDS TERMINATED BY ','
 STORED AS TEXTFILE
-location '/user/admin/raw_data/transactions';
+location '/user/sgupta/transactions';
 
 SELECT * FROM ext_customers;
 SELECT * FROM ext_products;
@@ -64,6 +64,13 @@ CREATE TABLE IF NOT EXISTS customer_transactions (
 STORED AS PARQUET;
 
 INSERT INTO customer_transactions
-SELECT c.cust_name, p.prod_name, t.qty*p.prod_price
+SELECT c.cust_name, p.prod_name, cast(t.qty*p.prod_price as float) as total_cost
 FROM customers c, products p, transactions t 
 WHERE c.cust_id = t.cust_id AND p.prod_id = t.prod_id;
+
+CREATE TABLE IF NOT EXISTS customer_transactions_ext
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY ','
+STORED AS TEXTFILE
+location '/user/sgupta/customer_transactions'
+AS SELECT * FROM customer_transactions
